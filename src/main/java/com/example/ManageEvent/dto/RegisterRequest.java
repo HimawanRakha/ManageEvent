@@ -7,5 +7,5 @@ public class RegisterRequest {
     private String name;
     private String email;
     private String password;
-    private String adminCode; // Menangkap kode admin dari frontend
+    private String adminCode;
 }
