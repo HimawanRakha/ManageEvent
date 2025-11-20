@@ -27,22 +27,12 @@ public class EventController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
-    // @PostMapping
-    // public ResponseEntity<Event> createEvent(@RequestBody Event event) {
-    //     // Logika: Creator ID harus diambil dari User yang sedang login (membutuhkan Spring Security)
-    //     // Untuk saat ini, kita simpan saja
-    //     Event savedEvent = eventRepository.save(event);
-    //     return new ResponseEntity<>(savedEvent, HttpStatus.CREATED);
-    // }
     
     @PostMapping
     public Event createEvent(@RequestBody Event event) {
-        // Di sini nanti bisa tambah logika validasi creatorId dari User yang login
         return eventRepository.save(event);
     }
-    
-    // PUT: Update event
+
     @PutMapping("/{id}")
     public ResponseEntity<Event> updateEvent(@PathVariable String id, @RequestBody Event event) {
         return eventRepository.findById(id)
@@ -60,7 +50,6 @@ public class EventController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
     
-    // DELETE
    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEvent(@PathVariable String id) {
         if (!eventRepository.existsById(id)) {

@@ -16,12 +16,12 @@ public class User {
 
     private String name;
 
-    @Indexed(unique = true) // Email harus unik
+    @Indexed(unique = true)
     private String email;
 
-    private String password; // Nanti harus di-hash
+    private String password;
 
-    private Role role = Role.USER; // Default user
+    private Role role = Role.USER;
 
     @CreatedDate
     private Instant createdAt;

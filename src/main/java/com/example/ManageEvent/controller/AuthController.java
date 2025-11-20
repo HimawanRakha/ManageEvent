@@ -17,35 +17,27 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000") // Izinkan Next.js akses
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
 
-    // Kita butuh encoder untuk hash password
-    // Pastikan kamu sudah membuat Bean PasswordEncoder di konfigurasi (Lihat langkah 3 di bawah)
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    // === REGISTER ===
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
-        // 1. Cek apakah email sudah ada
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ErrorResponse("Email is already taken!", "CONFLICT"));
         }
 
-        // 2. Buat User baru
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        
-        // 3. Hash Password (JANGAN SIMPAN PLAIN TEXT)
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        // 4. Logic Role berdasarkan Admin Code (case-insensitive dan handle null)
         String adminCode = request.getAdminCode();
         if (adminCode != null && adminCode.trim().equalsIgnoreCase("ADMIN123")) {
             user.setRole(User.Role.ADMIN);
@@ -53,10 +45,7 @@ public class AuthController {
             user.setRole(User.Role.USER);
         }
 
-        // 5. Simpan ke DB
         User savedUser = userRepository.save(user);
-
-        // 6. Return JSON response dengan data user (tanpa password)
         return ResponseEntity.status(HttpStatus.CREATED).body(
             new RegisterResponse(
                 "User registered successfully",
@@ -68,10 +57,8 @@ public class AuthController {
         );
     }
 
-    // === LOGIN ===
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest request) {
-        // 1. Cari User by Email
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
 
         if (userOpt.isEmpty()) {
@@ -81,14 +68,10 @@ public class AuthController {
 
         User user = userOpt.get();
 
-        // 2. Cek Password (Raw vs Hash)
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ErrorResponse("Invalid email or password", "UNAUTHORIZED"));
         }
-
-        // 3. Return data user (Response ini akan dipakai NextAuth di frontend)
-        // Kita convert Enum Role ke String biar aman di JSON
         return ResponseEntity.ok(new AuthResponse(
                 user.getId(),
                 user.getName(),

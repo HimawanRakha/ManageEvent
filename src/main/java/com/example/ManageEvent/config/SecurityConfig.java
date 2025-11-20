@@ -18,24 +18,19 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Ini yang membuat @Autowired BCryptPasswordEncoder di Controller bekerja
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Konfigurasi CORS untuk Next.js (Local & Production)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        // Daftar allowed origins (local development + production Vercel)
-        // Bisa ditambahkan via environment variable ALLOWED_ORIGINS jika perlu
+
         String allowedOriginsEnv = System.getenv("ALLOWED_ORIGINS");
         if (allowedOriginsEnv != null && !allowedOriginsEnv.isEmpty()) {
             configuration.setAllowedOrigins(Arrays.asList(allowedOriginsEnv.split(",")));
         } else {
-            // Default: localhost untuk development
             configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "https://localhost:3000"
@@ -45,23 +40,21 @@ public class SecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L); // Cache preflight untuk 1 jam
+        configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
-    // Konfigurasi filter chain agar endpoint /api/auth/** bisa diakses TANPA login
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
-            .csrf(AbstractHttpConfigurer::disable) // Disable CSRF untuk memudahkan API call
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                // Izinkan semua akses ke endpoint auth dan GET events (public)
                 .requestMatchers("/api/auth/**", "/api/events/**", "/api/registrations/**").permitAll()
-                .anyRequest().authenticated() // Sisanya harus login (nanti dikembangkan lagi)
+                .anyRequest().authenticated()
             );
 
         return http.build();

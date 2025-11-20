@@ -10,7 +10,6 @@ import java.time.Instant;
 
 @Data
 @Document(collection = "registrations")
-// Ini logic agar user tidak bisa daftar event yang sama 2x
 @CompoundIndex(def = "{'userId': 1, 'eventId': 1}", unique = true) 
 public class Registration {
     @Id

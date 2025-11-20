@@ -17,15 +17,14 @@ public class Event {
 
     private String title;
     private String description;
-    private Date date; // Bisa pakai java.util.Date atau java.time.LocalDateTime
-    private String time; // Waktu event (format: "HH:mm" atau "HH:mm:ss")
+    private Date date;
+    private String time;
     private String location;
     
-    private List<String> images; // Array of strings
+    private List<String> images;
     
-    private String spsLink; // Optional otomatis handled by Java (bisa null)
+    private String spsLink;
 
-    // Kita simpan ID-nya saja untuk referensi
     private String creatorId; 
 
     @CreatedDate
